@@ -17,13 +17,15 @@
 	.globl _waitpad
 	.globl _joypad
 	.globl _printf
-	.globl _ProjectileSprite
-	.globl _AlienSprite
-	.globl _ShipSprite
-	.globl _star
+	.globl _Spike
+	.globl _Medal
+	.globl _Apple
+	.globl _Banana
+	.globl _Player
+	.globl _spike
+	.globl _medal
 	.globl _apple
 	.globl _banana
-	.globl _spike
 	.globl _basket_player
 	.globl _scrTitle_map
 	.globl _scrTitle_data
@@ -48,23 +50,27 @@
 	.area _DATA
 _basket_player::
 	.ds 5
-_spike::
-	.ds 10
 _banana::
 	.ds 15
 _apple::
 	.ds 10
-_star::
+_medal::
 	.ds 5
+_spike::
+	.ds 10
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
 	.area _INITIALIZED
-_ShipSprite::
+_Player::
 	.ds 16
-_AlienSprite::
-	.ds 32
-_ProjectileSprite::
+_Banana::
+	.ds 16
+_Apple::
+	.ds 16
+_Medal::
+	.ds 16
+_Spike::
 	.ds 16
 ;--------------------------------------------------------
 ; absolute external ram data
@@ -86,25 +92,25 @@ _ProjectileSprite::
 ; code
 ;--------------------------------------------------------
 	.area _CODE
-;bitfalls.c:35: void main() {
+;bitfalls.c:43: UINT8 main(void) {
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-;bitfalls.c:39: DISPLAY_ON;
+;bitfalls.c:46: DISPLAY_ON;
 	ldh	a, (_LCDC_REG + 0)
 	or	a, #0x80
 	ldh	(_LCDC_REG + 0), a
-;bitfalls.c:40: setup_sound();
+;bitfalls.c:47: setup_sound();
 	call	_setup_sound
-;bitfalls.c:42: set_bkg_data(0, 156, scrTitle_data);
+;bitfalls.c:49: set_bkg_data(0, 156, scrTitle_data);
 	ld	de, #_scrTitle_data
 	push	de
 	ld	hl, #0x9c00
 	push	hl
 	call	_set_bkg_data
 	add	sp, #4
-;bitfalls.c:43: set_bkg_tiles(0, 0, 20, 18, scrTitle_map);
+;bitfalls.c:50: set_bkg_tiles(0, 0, 20, 18, scrTitle_map);
 	ld	de, #_scrTitle_map
 	push	de
 	ld	hl, #0x1214
@@ -114,72 +120,58 @@ _main::
 	push	af
 	call	_set_bkg_tiles
 	add	sp, #6
-;bitfalls.c:45: SHOW_BKG;
+;bitfalls.c:52: SHOW_BKG;
 	ldh	a, (_LCDC_REG + 0)
 	or	a, #0x01
 	ldh	(_LCDC_REG + 0), a
-;bitfalls.c:46: waitpad(J_START);
+;bitfalls.c:53: waitpad(J_START);
 	ld	a, #0x80
 	call	_waitpad
-;bitfalls.c:47: play_button_sound();
+;bitfalls.c:54: play_button_sound();
 	call	_play_button_sound
-;bitfalls.c:48: HIDE_BKG;
+;bitfalls.c:55: HIDE_BKG;
 	ldh	a, (_LCDC_REG + 0)
 	and	a, #0xfe
 	ldh	(_LCDC_REG + 0), a
-;bitfalls.c:50: SHOW_SPRITES;
+;bitfalls.c:57: SHOW_SPRITES;
 	ldh	a, (_LCDC_REG + 0)
 	or	a, #0x02
 	ldh	(_LCDC_REG + 0), a
-;bitfalls.c:51: set_sprite_data(0, 0, ShipSprite);
-	ld	de, #_ShipSprite
+;bitfalls.c:58: set_sprite_data(0, 0, Player);
+	ld	de, #_Player
 	push	de
 	xor	a, a
 	rrca
 	push	af
 	call	_set_sprite_data
 	add	sp, #4
-;bitfalls.c:52: set_sprite_data(1, 0, ProjectileSprite);
-	ld	de, #_ProjectileSprite
-	push	de
-	ld	hl, #0x01
-	push	hl
-	call	_set_sprite_data
-	add	sp, #4
-;bitfalls.c:53: set_sprite_data(2, 2, AlienSprite);
-	ld	de, #_AlienSprite
-	push	de
-	ld	hl, #0x202
-	push	hl
-	call	_set_sprite_data
-	add	sp, #4
-;bitfalls.c:55: setup_player();
+;bitfalls.c:60: setup_player();
 	call	_setup_player
-;bitfalls.c:56: setup_bananas(3);
+;bitfalls.c:61: setup_bananas(3);
 	ld	a, #0x03
 	call	_setup_bananas
-;bitfalls.c:58: while (1) {
+;bitfalls.c:63: while (1) {
 00112$:
-;bitfalls.c:59: if (joypad() & J_LEFT) {
+;bitfalls.c:64: if (joypad() & J_LEFT) {
 	call	_joypad
 	bit	1, a
 	jr	Z, 00105$
-;bitfalls.c:60: basket_player.x -= 4;
+;bitfalls.c:65: basket_player.x -= 4;
 	ld	hl, #_basket_player + 1
 	ld	a, (hl)
 	add	a, #0xfc
 	ld	(hl), a
-;bitfalls.c:61: if (is_player_within_bounds(&basket_player) == 0) {
+;bitfalls.c:66: if (is_player_within_bounds(&basket_player) == 0) {
 	push	hl
 	ld	de, #_basket_player
 	call	_is_player_within_bounds
 	pop	hl
-;bitfalls.c:60: basket_player.x -= 4;
+;bitfalls.c:65: basket_player.x -= 4;
 	ld	c, (hl)
-;bitfalls.c:61: if (is_player_within_bounds(&basket_player) == 0) {
+;bitfalls.c:66: if (is_player_within_bounds(&basket_player) == 0) {
 	or	a, a
 	jr	NZ, 00102$
-;bitfalls.c:62: move_character(&basket_player, basket_player.x, basket_player.y);
+;bitfalls.c:67: move_character(&basket_player, basket_player.x, basket_player.y);
 	ld	a, (#(_basket_player + 2) + 0)
 	push	af
 	inc	sp
@@ -188,31 +180,31 @@ _main::
 	call	_move_character
 	jr	00105$
 00102$:
-;bitfalls.c:63: } else basket_player.x += 4;
+;bitfalls.c:68: } else basket_player.x += 4;
 	ld	a, c
 	add	a, #0x04
 	ld	(hl), a
 00105$:
-;bitfalls.c:65: if (joypad() & J_RIGHT) {
+;bitfalls.c:70: if (joypad() & J_RIGHT) {
 	call	_joypad
 	rrca
 	jr	NC, 00110$
-;bitfalls.c:66: basket_player.x += 4;
+;bitfalls.c:71: basket_player.x += 4;
 	ld	hl, #_basket_player + 1
 	ld	a, (hl)
 	add	a, #0x04
 	ld	(hl), a
-;bitfalls.c:67: if (is_player_within_bounds(&basket_player) == 0) {
+;bitfalls.c:72: if (is_player_within_bounds(&basket_player) == 0) {
 	push	hl
 	ld	de, #_basket_player
 	call	_is_player_within_bounds
 	pop	hl
-;bitfalls.c:66: basket_player.x += 4;
+;bitfalls.c:71: basket_player.x += 4;
 	ld	c, (hl)
-;bitfalls.c:67: if (is_player_within_bounds(&basket_player) == 0) {
+;bitfalls.c:72: if (is_player_within_bounds(&basket_player) == 0) {
 	or	a, a
 	jr	NZ, 00107$
-;bitfalls.c:68: move_character(&basket_player, basket_player.x, basket_player.y);
+;bitfalls.c:73: move_character(&basket_player, basket_player.x, basket_player.y);
 	ld	a, (#(_basket_player + 2) + 0)
 	push	af
 	inc	sp
@@ -221,16 +213,16 @@ _main::
 	call	_move_character
 	jr	00110$
 00107$:
-;bitfalls.c:69: } else basket_player.x -= 4;
+;bitfalls.c:74: } else basket_player.x -= 4;
 	ld	a, c
 	add	a, #0xfc
 	ld	(hl), a
 00110$:
-;bitfalls.c:74: performant_delay(5); //10
+;bitfalls.c:79: performant_delay(5); //10
 	ld	a, #0x05
 	call	_performant_delay
-;bitfalls.c:76: tick_count++;
-;bitfalls.c:78: }
+;bitfalls.c:81: tick_count++;
+;bitfalls.c:83: }
 	jr	00112$
 _scrTitle_data:
 	.db #0xff	; 255
@@ -2498,128 +2490,128 @@ _scrTitle_map:
 	.db #0x00	; 0
 	.db #0x00	; 0
 	.db #0x00	; 0
-;bitfalls.c:80: void performant_delay(UINT8 time) {
+;bitfalls.c:85: void performant_delay(UINT8 time) {
 ;	---------------------------------
 ; Function performant_delay
 ; ---------------------------------
 _performant_delay::
 	ld	c, a
-;bitfalls.c:81: for (UINT8 i = 0; i < time; i++) {
+;bitfalls.c:86: for (UINT8 i = 0; i < time; i++) {
 	ld	b, #0x00
 00103$:
 	ld	a, b
 	sub	a, c
 	ret	NC
-;bitfalls.c:82: wait_vbl_done();
+;bitfalls.c:87: wait_vbl_done();
 	call	_wait_vbl_done
-;bitfalls.c:81: for (UINT8 i = 0; i < time; i++) {
+;bitfalls.c:86: for (UINT8 i = 0; i < time; i++) {
 	inc	b
-;bitfalls.c:84: }
+;bitfalls.c:89: }
 	jr	00103$
-;bitfalls.c:86: void setup_sound() {
+;bitfalls.c:91: void setup_sound(void) {
 ;	---------------------------------
 ; Function setup_sound
 ; ---------------------------------
 _setup_sound::
-;bitfalls.c:88: NR52_REG = 0x80;    // Turns on sound
+;bitfalls.c:93: NR52_REG = 0x80;    // Turns on sound
 	ld	a, #0x80
 	ldh	(_NR52_REG + 0), a
-;bitfalls.c:89: NR50_REG = 0x77;    // Sets the volume to max
+;bitfalls.c:94: NR50_REG = 0x77;    // Sets the volume to max
 	ld	a, #0x77
 	ldh	(_NR50_REG + 0), a
-;bitfalls.c:90: NR51_REG = 0xFF;    // Selects all channels to use
+;bitfalls.c:95: NR51_REG = 0xFF;    // Selects all channels to use
 	ld	a, #0xff
 	ldh	(_NR51_REG + 0), a
-;bitfalls.c:91: }
+;bitfalls.c:96: }
 	ret
-;bitfalls.c:93: void play_shooting_sound() {
+;bitfalls.c:98: void play_shooting_sound(void) {
 ;	---------------------------------
 ; Function play_shooting_sound
 ; ---------------------------------
 _play_shooting_sound::
-;bitfalls.c:94: NR10_REG = 0x16;    // See https://www.youtube.com/watch?v=psCxZr9iDck
+;bitfalls.c:99: NR10_REG = 0x16;    // See https://www.youtube.com/watch?v=psCxZr9iDck
 	ld	a, #0x16
 	ldh	(_NR10_REG + 0), a
-;bitfalls.c:95: NR11_REG = 0x40;
+;bitfalls.c:100: NR11_REG = 0x40;
 	ld	a, #0x40
 	ldh	(_NR11_REG + 0), a
-;bitfalls.c:96: NR12_REG = 0x73;
+;bitfalls.c:101: NR12_REG = 0x73;
 	ld	a, #0x73
 	ldh	(_NR12_REG + 0), a
-;bitfalls.c:97: NR13_REG = 0x00;
+;bitfalls.c:102: NR13_REG = 0x00;
 	xor	a, a
 	ldh	(_NR13_REG + 0), a
-;bitfalls.c:98: NR14_REG = 0xC3;
+;bitfalls.c:103: NR14_REG = 0xC3;
 	ld	a, #0xc3
 	ldh	(_NR14_REG + 0), a
-;bitfalls.c:99: }
+;bitfalls.c:104: }
 	ret
-;bitfalls.c:101: void play_button_sound() {
+;bitfalls.c:106: void play_button_sound(void) {
 ;	---------------------------------
 ; Function play_button_sound
 ; ---------------------------------
 _play_button_sound::
-;bitfalls.c:102: NR10_REG = 0x54;
+;bitfalls.c:107: NR10_REG = 0x54;
 	ld	a, #0x54
 	ldh	(_NR10_REG + 0), a
-;bitfalls.c:103: NR11_REG = 0x81;
+;bitfalls.c:108: NR11_REG = 0x81;
 	ld	a, #0x81
 	ldh	(_NR11_REG + 0), a
-;bitfalls.c:104: NR12_REG = 0x43;
+;bitfalls.c:109: NR12_REG = 0x43;
 	ld	a, #0x43
 	ldh	(_NR12_REG + 0), a
-;bitfalls.c:105: NR13_REG = 0x73;
+;bitfalls.c:110: NR13_REG = 0x73;
 	ld	a, #0x73
 	ldh	(_NR13_REG + 0), a
-;bitfalls.c:106: NR14_REG = 0x86;
+;bitfalls.c:111: NR14_REG = 0x86;
 	ld	a, #0x86
 	ldh	(_NR14_REG + 0), a
-;bitfalls.c:107: }
+;bitfalls.c:112: }
 	ret
-;bitfalls.c:109: void play_moving_sound() {
+;bitfalls.c:114: void play_moving_sound(void) {
 ;	---------------------------------
 ; Function play_moving_sound
 ; ---------------------------------
 _play_moving_sound::
-;bitfalls.c:110: NR41_REG = 0x3F;
+;bitfalls.c:115: NR41_REG = 0x3F;
 	ld	a, #0x3f
 	ldh	(_NR41_REG + 0), a
-;bitfalls.c:111: NR42_REG = 0x31;
+;bitfalls.c:116: NR42_REG = 0x31;
 	ld	a, #0x31
 	ldh	(_NR42_REG + 0), a
-;bitfalls.c:112: NR43_REG = 0x70;
+;bitfalls.c:117: NR43_REG = 0x70;
 	ld	a, #0x70
 	ldh	(_NR43_REG + 0), a
-;bitfalls.c:113: NR44_REG = 0x80;
+;bitfalls.c:118: NR44_REG = 0x80;
 	ld	a, #0x80
 	ldh	(_NR44_REG + 0), a
-;bitfalls.c:114: }
+;bitfalls.c:119: }
 	ret
-;bitfalls.c:116: void play_death_sound() {
+;bitfalls.c:121: void play_death_sound(void) {
 ;	---------------------------------
 ; Function play_death_sound
 ; ---------------------------------
 _play_death_sound::
-;bitfalls.c:117: NR41_REG = 0x20;
+;bitfalls.c:122: NR41_REG = 0x20;
 	ld	a, #0x20
 	ldh	(_NR41_REG + 0), a
-;bitfalls.c:118: NR42_REG = 0x68;
+;bitfalls.c:123: NR42_REG = 0x68;
 	ld	a, #0x68
 	ldh	(_NR42_REG + 0), a
-;bitfalls.c:119: NR43_REG = 0x6F;
+;bitfalls.c:124: NR43_REG = 0x6F;
 	ld	a, #0x6f
 	ldh	(_NR43_REG + 0), a
-;bitfalls.c:120: NR44_REG = 0xC0;
+;bitfalls.c:125: NR44_REG = 0xC0;
 	ld	a, #0xc0
 	ldh	(_NR44_REG + 0), a
-;bitfalls.c:121: }
+;bitfalls.c:126: }
 	ret
-;bitfalls.c:123: void setup_player() {
+;bitfalls.c:128: void setup_player(void) {
 ;	---------------------------------
 ; Function setup_player
 ; ---------------------------------
 _setup_player::
-;bitfalls.c:124: setup_game_character(&basket_player, 84, 136, 8, 8, 0, 0);
+;bitfalls.c:129: setup_game_character(&basket_player, 84, 136, 8, 8, 0, 0);
 	xor	a, a
 	rrca
 	push	af
@@ -2632,9 +2624,9 @@ _setup_player::
 	ld	a, #0x54
 	ld	de, #_basket_player
 	call	_setup_game_character
-;bitfalls.c:125: }
+;bitfalls.c:130: }
 	ret
-;bitfalls.c:127: void setup_bananas(UINT8 number) {
+;bitfalls.c:132: void setup_bananas(UINT8 number) {
 ;	---------------------------------
 ; Function setup_bananas
 ; ---------------------------------
@@ -2642,13 +2634,13 @@ _setup_bananas::
 	dec	sp
 	dec	sp
 	ld	c, a
-;bitfalls.c:129: for (i = 0; i < number; i++) {
+;bitfalls.c:134: for (i = 0; i < number; i++) {
 	ld	b, #0x00
 00103$:
 	ld	a, b
 	sub	a, c
 	jr	NC, 00105$
-;bitfalls.c:130: setup_game_character(&banana[i], 36 + i * 16, 32, 8, 8, i + 2, 3);
+;bitfalls.c:135: setup_game_character(&banana[i], 36 + i * 16, 32, 8, 8, i + 2, 3);
 	ld	a, b
 	add	a, #0x02
 	ldhl	sp,	#0
@@ -2683,15 +2675,15 @@ _setup_bananas::
 	ld	a, (hl)
 	call	_setup_game_character
 	pop	bc
-;bitfalls.c:129: for (i = 0; i < number; i++) {
+;bitfalls.c:134: for (i = 0; i < number; i++) {
 	inc	b
 	jr	00103$
 00105$:
-;bitfalls.c:132: }
+;bitfalls.c:137: }
 	inc	sp
 	inc	sp
 	ret
-;bitfalls.c:134: void setup_game_character(gamecharacter* character, UINT8 x, UINT8 y, UINT8 width, UINT8 height, UINT8 spriteid, UINT8 tile) {
+;bitfalls.c:139: void setup_game_character(gamecharacter* character, UINT8 x, UINT8 y, UINT8 width, UINT8 height, UINT8 spriteid, UINT8 tile) {
 ;	---------------------------------
 ; Function setup_game_character
 ; ---------------------------------
@@ -2699,19 +2691,19 @@ _setup_game_character::
 	dec	sp
 	ldhl	sp,	#0
 	ld	(hl), a
-;bitfalls.c:135: character->x = x;
+;bitfalls.c:140: character->x = x;
 	ld	c, e
 	ld	b, d
 	inc	bc
 	ld	a, (hl)
 	ld	(bc), a
-;bitfalls.c:136: character->y = y;
+;bitfalls.c:141: character->y = y;
 	ld	c, e
 	ld	b, d
 	inc	bc
 	inc	bc
 	ldhl	sp,	#3
-;bitfalls.c:137: character->width = width;
+;bitfalls.c:142: character->width = width;
 	ld	a, (hl+)
 	ld	(bc), a
 	ld	c, e
@@ -2721,13 +2713,13 @@ _setup_game_character::
 	inc	bc
 	ld	a, (hl)
 	ld	(bc), a
-;bitfalls.c:138: character->height = height;
+;bitfalls.c:143: character->height = height;
 	ld	hl, #0x0004
 	add	hl, de
 	ld	c, l
 	ld	b, h
 	ldhl	sp,	#5
-;bitfalls.c:140: set_sprite_tile(spriteid, tile);
+;bitfalls.c:145: set_sprite_tile(spriteid, tile);
 	ld	a, (hl+)
 	inc	hl
 	ld	(bc), a
@@ -2749,10 +2741,10 @@ _setup_game_character::
 	inc	hl
 	pop	de
 	ld	(hl), b
-;bitfalls.c:141: character->spriteid = spriteid;
+;bitfalls.c:146: character->spriteid = spriteid;
 	ld	a, c
 	ld	(de), a
-;bitfalls.c:143: move_character(character, x, y);
+;bitfalls.c:148: move_character(character, x, y);
 	ldhl	sp,	#3
 	ld	a, (hl)
 	push	af
@@ -2760,17 +2752,17 @@ _setup_game_character::
 	ldhl	sp,	#1
 	ld	a, (hl)
 	call	_move_character
-;bitfalls.c:144: }
+;bitfalls.c:149: }
 	inc	sp
 	pop	hl
 	add	sp, #5
 	jp	(hl)
-;bitfalls.c:146: UBYTE is_player_within_bounds(gamecharacter* player) {
+;bitfalls.c:151: UBYTE is_player_within_bounds(gamecharacter* player) {
 ;	---------------------------------
 ; Function is_player_within_bounds
 ; ---------------------------------
 _is_player_within_bounds::
-;bitfalls.c:147: return player->x > 152 || player->x < 16 ? 1 : 0;
+;bitfalls.c:152: return player->x > 152 || player->x < 16 ? 1 : 0;
 	inc	de
 	ld	a, (de)
 	ld	c, a
@@ -2785,9 +2777,9 @@ _is_player_within_bounds::
 	ret
 00103$:
 	xor	a, a
-;bitfalls.c:148: }
+;bitfalls.c:153: }
 	ret
-;bitfalls.c:150: UBYTE has_collision_happened(gamecharacter* first, gamecharacter* second) {
+;bitfalls.c:155: UBYTE has_collision_happened(gamecharacter* first, gamecharacter* second) {
 ;	---------------------------------
 ; Function has_collision_happened
 ; ---------------------------------
@@ -2796,7 +2788,7 @@ _has_collision_happened::
 	ldhl	sp,	#14
 	ld	a, e
 	ld	(hl+), a
-;bitfalls.c:151: if ((first->x >= second->x - second->width && first->x  <= second->x &&
+;bitfalls.c:156: if ((first->x >= second->x - second->width && first->x  <= second->x &&
 	ld	a, d
 	ld	(hl-), a
 	ld	a, (hl+)
@@ -2844,7 +2836,7 @@ _has_collision_happened::
 	ldhl	sp,	#4
 	ld	(hl+), a
 	ld	(hl), #0x00
-;bitfalls.c:152: first->y <= second->y + second->height && first->y >= second->y) ||
+;bitfalls.c:157: first->y <= second->y + second->height && first->y >= second->y) ||
 	ldhl	sp,#14
 	ld	a, (hl+)
 	ld	e, a
@@ -2869,7 +2861,7 @@ _has_collision_happened::
 	ld	a, h
 	ldhl	sp,	#9
 	ld	(hl), a
-;bitfalls.c:151: if ((first->x >= second->x - second->width && first->x  <= second->x &&
+;bitfalls.c:156: if ((first->x >= second->x - second->width && first->x  <= second->x &&
 	ldhl	sp,	#4
 	ld	e, l
 	ld	d, h
@@ -2898,7 +2890,7 @@ _has_collision_happened::
 	ld	a, (hl-)
 	sub	a, (hl)
 	jr	C, 00109$
-;bitfalls.c:152: first->y <= second->y + second->height && first->y >= second->y) ||
+;bitfalls.c:157: first->y <= second->y + second->height && first->y >= second->y) ||
 	ldhl	sp,#6
 	ld	a, (hl+)
 	ld	e, a
@@ -2956,7 +2948,7 @@ _has_collision_happened::
 	sub	a, (hl)
 	jp	NC, 00101$
 00109$:
-;bitfalls.c:153: (second->x >= first->x - first->width && second->x  <= first->x &&
+;bitfalls.c:158: (second->x >= first->x - first->width && second->x  <= first->x &&
 	ldhl	sp,	#14
 	ld	a, (hl+)
 	ld	c, a
@@ -3001,7 +2993,7 @@ _has_collision_happened::
 	ld	a, (hl+)
 	sub	a, (hl)
 	jr	C, 00102$
-;bitfalls.c:154: second->y <= first->y + first->height && second->y >= first->y)) {
+;bitfalls.c:159: second->y <= first->y + first->height && second->y >= first->y)) {
 	ldhl	sp,#8
 	ld	a, (hl+)
 	ld	e, a
@@ -3066,23 +3058,23 @@ _has_collision_happened::
 	sub	a, (hl)
 	jr	C, 00102$
 00101$:
-;bitfalls.c:155: return 0;
+;bitfalls.c:160: return 0;
 	xor	a, a
 	jr	00110$
 00102$:
-;bitfalls.c:157: return 1;
+;bitfalls.c:162: return 1;
 	ld	a, #0x01
 00110$:
-;bitfalls.c:158: }
+;bitfalls.c:163: }
 	add	sp, #16
 	ret
-;bitfalls.c:160: void move_character(gamecharacter* character, UINT8 x, UINT8 y) {
+;bitfalls.c:165: void move_character(gamecharacter* character, UINT8 x, UINT8 y) {
 ;	---------------------------------
 ; Function move_character
 ; ---------------------------------
 _move_character::
 	ld	c, a
-;bitfalls.c:161: move_sprite(character->spriteid, x, y);
+;bitfalls.c:166: move_sprite(character->spriteid, x, y);
 	ldhl	sp,	#2
 	ld	b, (hl)
 	ld	a, (de)
@@ -3101,49 +3093,49 @@ _move_character::
 	ld	(hl), b
 	inc	hl
 	ld	(hl), c
-;bitfalls.c:161: move_sprite(character->spriteid, x, y);
-;bitfalls.c:162: }
+;bitfalls.c:166: move_sprite(character->spriteid, x, y);
+;bitfalls.c:167: }
 	pop	hl
 	inc	sp
 	jp	(hl)
-;bitfalls.c:164: void game_over(UBYTE win) {
+;bitfalls.c:169: void game_over(UBYTE win) {
 ;	---------------------------------
 ; Function game_over
 ; ---------------------------------
 _game_over::
 	ld	c, a
-;bitfalls.c:165: SHOW_BKG;
+;bitfalls.c:170: SHOW_BKG;
 	ldh	a, (_LCDC_REG + 0)
 	or	a, #0x01
 	ldh	(_LCDC_REG + 0), a
-;bitfalls.c:166: HIDE_SPRITES;
+;bitfalls.c:171: HIDE_SPRITES;
 	ldh	a, (_LCDC_REG + 0)
 	and	a, #0xfd
 	ldh	(_LCDC_REG + 0), a
-;bitfalls.c:167: printf(" \n \n \n \n === Game  Over ===");
+;bitfalls.c:172: printf(" \n \n \n \n === Game  Over ===");
 	push	bc
 	ld	de, #___str_0
 	push	de
 	call	_printf
 	pop	hl
 	pop	bc
-;bitfalls.c:168: if (win == 0) {
+;bitfalls.c:173: if (win == 0) {
 	ld	a, c
 	or	a, a
 	jr	NZ, 00102$
-;bitfalls.c:169: printf("\n \n - Player Won");
+;bitfalls.c:174: printf("\n \n - Player Won");
 	ld	de, #___str_1
 	push	de
 	call	_printf
 	pop	hl
 	ret
 00102$:
-;bitfalls.c:171: printf("\n \n - Player Lost");
+;bitfalls.c:176: printf("\n \n - Player Lost");
 	ld	de, #___str_2
 	push	de
 	call	_printf
 	pop	hl
-;bitfalls.c:173: }
+;bitfalls.c:178: }
 	ret
 ___str_0:
 	.ascii " "
@@ -3170,71 +3162,89 @@ ___str_2:
 	.db 0x00
 	.area _CODE
 	.area _INITIALIZER
-__xinit__ShipSprite:
-	.db #0x18	; 24
-	.db #0x18	; 24
-	.db #0x18	; 24
-	.db #0x18	; 24
-	.db #0x5a	; 90	'Z'
-	.db #0x5a	; 90	'Z'
+__xinit__Player:
+	.db #0x00	; 0
+	.db #0x00	; 0
+	.db #0x00	; 0
+	.db #0x00	; 0
+	.db #0x00	; 0
+	.db #0x00	; 0
+	.db #0x7e	; 126
+	.db #0x7e	; 126
+	.db #0xc3	; 195
 	.db #0x81	; 129
-	.db #0xdb	; 219
-	.db #0x42	; 66	'B'
 	.db #0xbd	; 189
-	.db #0x7e	; 126
-	.db #0x81	; 129
-	.db #0x7e	; 126
-	.db #0x42	; 66	'B'
-	.db #0x24	; 36
-	.db #0x3c	; 60
-__xinit__AlienSprite:
-	.db #0x42	; 66	'B'
-	.db #0x42	; 66	'B'
-	.db #0x24	; 36
-	.db #0x3c	; 60
-	.db #0x7e	; 126
-	.db #0x42	; 66	'B'
-	.db #0x7e	; 126
-	.db #0xbd	; 189
-	.db #0x42	; 66	'B'
-	.db #0xbd	; 189
-	.db #0x81	; 129
 	.db #0xff	; 255
 	.db #0x42	; 66	'B'
-	.db #0x66	; 102	'f'
+	.db #0x7e	; 126
+	.db #0x3c	; 60
+	.db #0x3c	; 60
+__xinit__Banana:
+	.db #0x20	; 32
+	.db #0x30	; 48	'0'
+	.db #0x70	; 112	'p'
+	.db #0x50	; 80	'P'
+	.db #0x70	; 112	'p'
+	.db #0x50	; 80	'P'
+	.db #0xb0	; 176
+	.db #0xd0	; 208
+	.db #0xb8	; 184
+	.db #0xc8	; 200
+	.db #0x9e	; 158
+	.db #0xe6	; 230
+	.db #0x4f	; 79	'O'
+	.db #0x71	; 113	'q'
+	.db #0x3e	; 62
+	.db #0x3e	; 62
+__xinit__Apple:
 	.db #0x00	; 0
+	.db #0x10	; 16
+	.db #0x00	; 0
+	.db #0x08	; 8
+	.db #0x76	; 118	'v'
+	.db #0x7e	; 126
+	.db #0xef	; 239
+	.db #0x99	; 153
+	.db #0xdf	; 223
+	.db #0x81	; 129
+	.db #0xbd	; 189
+	.db #0xc3	; 195
 	.db #0x42	; 66	'B'
-	.db #0x42	; 66	'B'
-	.db #0x42	; 66	'B'
+	.db #0x7e	; 126
+	.db #0x3c	; 60
+	.db #0x3c	; 60
+__xinit__Medal:
+	.db #0x00	; 0
+	.db #0x00	; 0
+	.db #0x18	; 24
+	.db #0x18	; 24
+	.db #0x24	; 36
+	.db #0x2c	; 44
+	.db #0xc3	; 195
+	.db #0xcf	; 207
+	.db #0x4e	; 78	'N'
+	.db #0x72	; 114	'r'
+	.db #0x2c	; 44
+	.db #0x34	; 52	'4'
+	.db #0x18	; 24
+	.db #0x18	; 24
+	.db #0x00	; 0
+	.db #0x00	; 0
+__xinit__Spike:
+	.db #0x08	; 8
+	.db #0x08	; 8
+	.db #0x5a	; 90	'Z'
+	.db #0x5a	; 90	'Z'
 	.db #0x24	; 36
 	.db #0x3c	; 60
-	.db #0x7e	; 126
-	.db #0x42	; 66	'B'
-	.db #0x7e	; 126
-	.db #0xbd	; 189
-	.db #0x42	; 66	'B'
-	.db #0xbd	; 189
-	.db #0x81	; 129
-	.db #0xff	; 255
-	.db #0x42	; 66	'B'
-	.db #0x66	; 102	'f'
-	.db #0x00	; 0
+	.db #0xda	; 218
+	.db #0xe6	; 230
+	.db #0x5b	; 91
+	.db #0x67	; 103	'g'
 	.db #0x24	; 36
-__xinit__ProjectileSprite:
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x18	; 24
-	.db #0x00	; 0
-	.db #0x18	; 24
-	.db #0x00	; 0
-	.db #0x18	; 24
-	.db #0x00	; 0
-	.db #0x18	; 24
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
-	.db #0x00	; 0
+	.db #0x3c	; 60
+	.db #0x5a	; 90	'Z'
+	.db #0x5a	; 90	'Z'
+	.db #0x10	; 16
+	.db #0x10	; 16
 	.area _CABS (ABS)

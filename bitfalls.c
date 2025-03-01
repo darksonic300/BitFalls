@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include "gamecharacter.c"
 
-// Sprites includes
-#include "sprites/ship.c"
-#include "sprites/alien.c"
-#include "sprites/projectile.c"
+// Sprite includes
+#include "sprites/player.c"
+#include "sprites/banana.c"
+#include "sprites/apple.c"
+#include "sprites/medal.c"
+#include "sprites/spike.c"
+
 #include "sprites/scrTitle_data.c"
 #include "sprites/scrTitle_map.c"
 
@@ -13,28 +16,32 @@
 
 // IMPORTANT - 0 = true, 1 = false
 
-gamecharacter basket_player;
-gamecharacter spike[2];
-gamecharacter banana[3];
-gamecharacter apple[2];
-gamecharacter star;
-
-void setup_player();
+// Prototypes
+void setup_player(void);
 void setup_bananas(UINT8 number);
+void setup_apples(UINT8 number);
+void setup_medal(void);
+void setup_spikes(UINT8 number);
 void setup_game_character(gamecharacter* character, UINT8 x, UINT8 y, UINT8 width, UINT8 height, UINT8 spriteid, UINT8 tile);
 UBYTE is_player_within_bounds(gamecharacter* player);
 UBYTE has_collision_happened(gamecharacter* first, gamecharacter* second);
-void setup_sound();
-void play_button_sound();
-void play_moving_sound();
-void play_death_sound();
+void setup_sound(void);
+void play_button_sound(void);
+void play_moving_sound(void);
+void play_death_sound(void);
 void move_character(gamecharacter* character, UINT8 x, UINT8 y);
 void game_over(UBYTE win);
 void performant_delay(UINT8 time);
 
-void main() {
-    UINT8 i, set_tile = 1, mvt_flag = 0, tick_count = 0;
-    UBYTE projectileflag = 0;
+// Global Structs
+gamecharacter basket_player;
+gamecharacter banana[3];
+gamecharacter apple[2];
+gamecharacter medal;
+gamecharacter spike[2];
+
+UINT8 main(void) {
+    UINT8 tick_count = 0;
 
     DISPLAY_ON;
     setup_sound();
@@ -48,9 +55,7 @@ void main() {
     HIDE_BKG;
 
     SHOW_SPRITES;
-    set_sprite_data(0, 0, ShipSprite);
-    set_sprite_data(1, 0, ProjectileSprite);
-    set_sprite_data(2, 2, AlienSprite);
+    set_sprite_data(0, 0, Player);
 
     setup_player();
     setup_bananas(3);
@@ -83,14 +88,14 @@ void performant_delay(UINT8 time) {
     }
 }
 
-void setup_sound() {
+void setup_sound(void) {
     // Sound Registers. This is their specific order
     NR52_REG = 0x80;    // Turns on sound
     NR50_REG = 0x77;    // Sets the volume to max
     NR51_REG = 0xFF;    // Selects all channels to use
 }
 
-void play_shooting_sound() {
+void play_shooting_sound(void) {
     NR10_REG = 0x16;    // See https://www.youtube.com/watch?v=psCxZr9iDck
     NR11_REG = 0x40;
     NR12_REG = 0x73;
@@ -98,7 +103,7 @@ void play_shooting_sound() {
     NR14_REG = 0xC3;
 }
 
-void play_button_sound() {
+void play_button_sound(void) {
     NR10_REG = 0x54;
     NR11_REG = 0x81;
     NR12_REG = 0x43;
@@ -106,21 +111,21 @@ void play_button_sound() {
     NR14_REG = 0x86;
 }
 
-void play_moving_sound() {
+void play_moving_sound(void) {
     NR41_REG = 0x3F;
     NR42_REG = 0x31;
     NR43_REG = 0x70;
     NR44_REG = 0x80;
 }
 
-void play_death_sound() {
+void play_death_sound(void) {
     NR41_REG = 0x20;
     NR42_REG = 0x68;
     NR43_REG = 0x6F;
     NR44_REG = 0xC0;
 }
 
-void setup_player() {
+void setup_player(void) {
     setup_game_character(&basket_player, 84, 136, 8, 8, 0, 0);
 }
 

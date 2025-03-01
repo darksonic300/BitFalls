@@ -7,8 +7,10 @@ Symbol Table
     .__.ABS.                                                    =   00000000 G
     .__.CPU.                                                    =   00000000 L
     .__.H$L.                                                    =   00000000 L
-  2 _AlienSprite                                                    00000010 GR
+  2 _Apple                                                          00000020 GR
+  2 _Banana                                                         00000010 GR
     _LCDC_REG                                                       ******** GX
+  2 _Medal                                                          00000030 GR
     _NR10_REG                                                       ******** GX
     _NR11_REG                                                       ******** GX
     _NR12_REG                                                       ******** GX
@@ -21,48 +23,50 @@ Symbol Table
     _NR50_REG                                                       ******** GX
     _NR51_REG                                                       ******** GX
     _NR52_REG                                                       ******** GX
-  2 _ProjectileSprite                                               00000030 GR
-  2 _ShipSprite                                                     00000000 GR
-  0 ___str_0                                                        00000C4F R
-  0 ___str_1                                                        00000C6B R
-  0 ___str_2                                                        00000C7C R
-  7 __xinit__AlienSprite                                            00000010 R
-  7 __xinit__ProjectileSprite                                       00000030 R
-  7 __xinit__ShipSprite                                             00000000 R
-  1 _apple                                                          0000001E GR
-  1 _banana                                                         0000000F GR
+  2 _Player                                                         00000000 GR
+  2 _Spike                                                          00000040 GR
+  0 ___str_0                                                        00000C35 R
+  0 ___str_1                                                        00000C51 R
+  0 ___str_2                                                        00000C62 R
+  7 __xinit__Apple                                                  00000020 R
+  7 __xinit__Banana                                                 00000010 R
+  7 __xinit__Medal                                                  00000030 R
+  7 __xinit__Player                                                 00000000 R
+  7 __xinit__Spike                                                  00000040 R
+  1 _apple                                                          00000014 GR
+  1 _banana                                                         00000005 GR
   1 _basket_player                                                  00000000 GR
-  0 _game_over                                                      00000C22 GR
-  0 _has_collision_happened                                         00000AB5 GR
-  0 _is_player_within_bounds                                        00000AA3 GR
+  0 _game_over                                                      00000C08 GR
+  0 _has_collision_happened                                         00000A9B GR
+  0 _is_player_within_bounds                                        00000A89 GR
     _joypad                                                         ******** GX
   0 _main                                                           00000000 GR
-  0 _move_character                                                 00000C0E GR
-  0 _performant_delay                                               000009A4 GR
-  0 _play_button_sound                                              000009D1 GR
-  0 _play_death_sound                                               000009F7 GR
-  0 _play_moving_sound                                              000009E6 GR
-  0 _play_shooting_sound                                            000009BD GR
+  1 _medal                                                          0000001E GR
+  0 _move_character                                                 00000BF4 GR
+  0 _performant_delay                                               0000098A GR
+  0 _play_button_sound                                              000009B7 GR
+  0 _play_death_sound                                               000009DD GR
+  0 _play_moving_sound                                              000009CC GR
+  0 _play_shooting_sound                                            000009A3 GR
     _printf                                                         ******** GX
-  0 _scrTitle_data                                                  000000CC GR
-  0 _scrTitle_map                                                   0000083C GR
+  0 _scrTitle_data                                                  000000B2 GR
+  0 _scrTitle_map                                                   00000822 GR
     _set_bkg_data                                                   ******** GX
     _set_bkg_tiles                                                  ******** GX
     _set_sprite_data                                                ******** GX
-  0 _setup_bananas                                                  00000A1D GR
-  0 _setup_game_character                                           00000A5D GR
-  0 _setup_player                                                   00000A08 GR
-  0 _setup_sound                                                    000009B0 GR
-    _shadow_OAM                                                     ******** GX
-  1 _spike                                                          00000005 GR
-  1 _star                                                           00000028 GR
-    _wait_vbl_done                                                  ******** GX
-    _waitpad                                                        ******** GX
+  0 _setup_bananas                                                  00000A03 GR
+  0 _setup_game_character                                           00000A43 GR
+  0 _setup_player                                                   000009EE GR
+  0 _setup_sound                                                    00000996 GR
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 2
 Hexadecimal [32-Bits]
 
 Symbol Table
 
+    _shadow_OAM                                                     ******** GX
+  1 _spike                                                          00000023 GR
+    _wait_vbl_done                                                  ******** GX
+    _waitpad                                                        ******** GX
 
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 3
@@ -70,13 +74,13 @@ Hexadecimal [32-Bits]
 
 Area Table
 
-   0 _CODE                                      size      C8E   flags    0
+   0 _CODE                                      size      C74   flags    0
    1 _DATA                                      size       2D   flags    0
-   2 _INITIALIZED                               size       40   flags    0
+   2 _INITIALIZED                               size       50   flags    0
    3 _DABS                                      size        0   flags    8
    4 _HOME                                      size        0   flags    0
    5 _GSINIT                                    size        0   flags    0
    6 _GSFINAL                                   size        0   flags    0
-   7 _INITIALIZER                               size       40   flags    0
+   7 _INITIALIZER                               size       50   flags    0
    8 _CABS                                      size        0   flags    8
 
